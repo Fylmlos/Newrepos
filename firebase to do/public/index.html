@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        /* Header style */
+        .header {
+            background-color: #4CAF50; /* Green */
+            padding: 30px 20px;
+            text-align: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .header h2 {
+            margin: 0;
+            color: white;
+        }
+
+        /* Style the input */
+        input[type="text"] {
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-right: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: calc(70% - 10px); /* Adjusted width to account for margin */
+            transition: border 0.3s;
+        }
+
+        input[type="text"]:hover {
+            border: 2px solid #4CAF50; /* Green border on hover */
+            outline: none; /* Remove default outline */
+        }
+
+        /* Style the "Add" button */
+        .addBtn {
+            padding: 15px;
+            background-color: #28a745; /* Bootstrap green */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s, transform 0.2s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .addBtn:hover {
+            background-color: #218838; /* Darker green */
+            transform: scale(1.05);
+        }
+
+        /* Style the list */
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            max-width: 600px;
+            margin: auto;
+        }
+
+        /* Style the list items */
+        ul li {
+            cursor: pointer;
+            position: relative;
+            padding: 12px 20px;
+            background: #ffffff;
+            font-size: 18px;
+            margin: 10px 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: background 0.2s;
+        }
+
+        /* Different background for odd items (zebra-stripes) */
+        ul li:nth-child(odd) {
+            background: #f9f9f9;
+        }
+
+        /* Darker background-color on hover */
+        ul li:hover {
+            background: #f1f1f1;
+        }
+
+        /* When clicked on, add a background color and strike out text */
+        ul li.checked {
+            background: #888;
+            color: #fff;
+            text-decoration: line-through;
+        }
+
+        /* Style the close button */
+        .close {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #dc3545; /* Red */
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .close:hover {
+            background-color: #c82333; /* Darker red */
+        }
+
+        /* Add checkmark before completed tasks */
+        ul li.checked::before {
+            content: '';
+            position: absolute;
+            border-color: #fff;
+            border-style: solid;
+            border-width: 0 2px 2px 0;
+            top: 20px;
+            left: 16px;
+            transform: rotate(45deg);
+            height: 15px;
+            width: 7px;
+        }
+
+        /* New section styles */
+        .info-section {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .info-section h3 {
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+
+        .info-section p {
+            line-height: 1.6;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div id="myDIV" class="header">
+    <h2>My To Do List</h2>
+    <input type="text" id="myInput" placeholder="Task Title...">
+    <span onclick="newElement()" class="addBtn">Add</span>
+</div>
+
+<ul id="myUL"></ul>
+
+<!-- Additional Info Section -->
+<div class="info-section">
+    <h3>About This To-Do List</h3>
+    <p>This application allows you to manage your daily tasks efficiently. You can add new tasks, mark them as completed, and remove them as needed. The tasks you add will be saved in your browser's local storage, so you can refresh the page without losing your progress.</p>
+    <h3>How to Use:</h3>
+    <p>1. Enter a task in the input field.</p>
+    <p>2. Click "Add" to add the task to your list.</p>
+    <p>3. Click on a task to mark it as completed or uncompleted.</p>
+    <p>4. Click the "×" button to delete a task from your list.</p>
+</div>
+
+<script>
+    // Function to load tasks from localStorage
+    function loadTasks() {
+        const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        tasks.forEach(task => {
+            addTaskToDOM(task.text, task.checked);
+        });
+    }
+
+    // Function to add task to the DOM
+    function addTaskToDOM(taskText, isChecked) {
+        var li = document.createElement("li");
+        li.textContent = taskText;
+        if (isChecked) li.classList.add('checked');
+
+        var span = document.createElement("SPAN");
+        span.textContent = "\u00D7";
+        span.className = "close";
+        li.appendChild(span);
+        document.getElementById("myUL").appendChild(li);
+
+        span.onclick = function() {
+            var div = this.parentElement;
+            div.style.display = "none";
+            removeTaskFromStorage(taskText); // Remove from localStorage
+        };
+
+        li.onclick = function() {
+            li.classList.toggle('checked');
+            updateTaskInStorage(taskText); // Update the checked state
+        };
+    }
+
+    // Function to remove task from localStorage
+    function removeTaskFromStorage(taskText) {
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        tasks = tasks.filter(task => task.text !== taskText);
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    // Function to update task in localStorage
+    function updateTaskInStorage(taskText) {
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        const task = tasks.find(task => task.text === taskText);
+        if (task) {
+            task.checked = !task.checked; // Toggle checked state
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+    }
+
+    // Create a new task when clicking on the "Add" button
+    function newElement() {
+        var inputValue = document.getElementById("myInput").value;
+        if (inputValue === '') {
+            alert("You must write something!");
+            return;
+        }
+        addTaskToDOM(inputValue, false);
+        saveTaskToStorage(inputValue); // Save to localStorage
+        document.getElementById("myInput").value = "";
+    }
+
+    // Function to save task to localStorage
+    function saveTaskToStorage(taskText) {
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        tasks.push({ text: taskText, checked: false });
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    // Load tasks on page load
+    window.onload = loadTasks;
+</script>
+
+</body>
+</html>
